@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Bangun Ruang 3D</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --glass-effect: rgba(255, 255, 255, 0.2);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #3a0ca3, #4361ee);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in-out;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Shape Selector */
+        .shape-selector {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .shape-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            background-color: var(--glass-effect);
+            backdrop-filter: blur(10px);
+            color: white;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .shape-btn i {
+            font-size: 1.1rem;
+        }
+        
+        .shape-btn.active {
+            background-color: white;
+            color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .shape-btn:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        /* Unit Selector */
+        .unit-selector {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+        
+        .unit-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 50px;
+            background-color: var(--glass-effect);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+        }
+        
+        .unit-btn.active {
+            background-color: white;
+            color: var(--primary);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .unit-btn:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+        
+        /* Calculator Container */
+        .calculator-container {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+            transition: all 0.5s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .shape-card {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .shape-card.active {
+            display: block;
+        }
+        
+        .shape-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+        
+        .shape-title {
+            color: var(--primary-dark);
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .shape-icon {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+        
+        .shape-image {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 18px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(to right, var(--primary-dark), var(--primary));
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .calculate-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+        }
+        
+        .calculate-btn:hover::after {
+            left: 100%;
+        }
+        
+        .results {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: rgba(67, 97, 238, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .result-item {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .result-label {
+            font-weight: 500;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .result-label i {
+            color: var(--primary);
+        }
+        
+        .result-value {
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .shape-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .calculator-container {
+                padding: 20px;
+            }
+            
+            .shape-image {
+                width: 80px;
+                height: 80px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .shape-selector {
+                gap: 10px;
+            }
+            
+            .shape-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .shape-btn i {
+                display: none;
+            }
+            
+            .shape-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .shape-image {
+                align-self: center;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kalkulator Bangun Ruang 3D</h1>
+            <p class="subtitle">Hitung volume dan luas permukaan dengan visualisasi 3D</p>
+            <br>
+            <img src="image/2.png" alt="Kubus 3D" style="width: 500px; align-items: center;">
+            
+            <div class="shape-selector">
+                <button class="shape-btn active" data-shape="cube">
+                    <i class="fas fa-cube"></i>
+                    Kubus
+                </button>
+                <button class="shape-btn" data-shape="cuboid">
+                    <i class="fas fa-box-open"></i>
+                    Balok
+                </button>
+                <button class="shape-btn" data-shape="pyramid">
+                    <i class="fas fa-mountain"></i>
+                    Limas Segi Empat
+                </button>
+            </div>
+            
+            <div class="unit-selector">
+                <button class="unit-btn active" data-unit="cm">
+                    <i class="fas fa-ruler"></i> Centimeter (cm)
+                </button>
+                <button class="unit-btn" data-unit="m">
+                    <i class="fas fa-ruler-combined"></i> Meter (m)
+                </button>
+            </div>
+        </header>
+        
+        <div class="calculator-container">
+            <!-- Kubus -->
+            <div class="shape-card active" id="cube-card">
+                <div class="shape-header">
+                    <h2 class="shape-title">
+                        <i class="fas fa-cube shape-icon"></i>
+                        Kubus
+                    </h2>
+                    <img src="image/5.png" alt="Kubus 3D" class="shape-image">
+                </div>
+                <div class="input-group">
+                    <label for="cube-side">
+                        <i class="fas fa-ruler-vertical"></i> Panjang Sisi
+                    </label>
+                    <input type="number" id="cube-side" placeholder="Masukkan panjang sisi" step="any" min="0">
+                </div>
+                <button class="calculate-btn" onclick="calculateCube()">
+                    <i class="fas fa-calculator"></i> Hitung
+                </button>
+                <div class="results" id="cube-results" style="display: none;">
+                    <div class="result-item">
+                        <span class="result-label">
+                            <i class="fas fa-weight-hanging"></i> Volume:
+                        </span>
+                        <span class="result-value" id="cube-volume">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <i class="fas fa-border-style"></i> Luas Permukaan:
+                        </span>
+                        <span class="result-value" id="cube-surface">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Balok -->
+            <div class="shape-card" id="cuboid-card">
+                <div class="shape-header">
+                    <h2 class="shape-title">
+                        <i class="fas fa-box-open shape-icon"></i>
+                        Balok
+                    </h2>
+                    <img src="image/3.png" alt="Balok 3D" class="shape-image">
+                </div>
+                <div class="input-group">
+                    <label for="cuboid-length">
+                        <i class="fas fa-ruler-horizontal"></i> Panjang
+                    </label>
+                    <input type="number" id="cuboid-length" placeholder="Masukkan panjang" step="any" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="cuboid-width">
+                        <i class="fas fa-ruler-horizontal"></i> Lebar
+                    </label>
+                    <input type="number" id="cuboid-width" placeholder="Masukkan lebar" step="any" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="cuboid-height">
+                        <i class="fas fa-ruler-vertical"></i> Tinggi
+                    </label>
+                    <input type="number" id="cuboid-height" placeholder="Masukkan tinggi" step="any" min="0">
+                </div>
+                <button class="calculate-btn" onclick="calculateCuboid()">
+                    <i class="fas fa-calculator"></i> Hitung
+                </button>
+                <div class="results" id="cuboid-results" style="display: none;">
+                    <div class="result-item">
+                        <span class="result-label">
+                            <i class="fas fa-weight-hanging"></i> Volume:
+                        </span>
+                        <span class="result-value" id="cuboid-volume">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <i class="fas fa-border-style"></i> Luas Permukaan:
+                        </span>
+                        <span class="result-value" id="cuboid-surface">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Piramida -->
+            <div class="shape-card" id="pyramid-card">
+                <div class="shape-header">
+                    <h2 class="shape-title">
+                        <i class="fas fa-mountain shape-icon"></i>
+                        Limas Segi Empat
+                    </h2>
+                    <img src="image/4.png" alt="Piramida 3D" class="shape-image">
+                </div>
+                <div class="input-group">
+                    <label for="pyramid-base">
+                        <i class="fas fa-ruler-horizontal"></i> Panjang Alas
+                    </label>
+                    <input type="number" id="pyramid-base" placeholder="Masukkan panjang alas" step="any" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="pyramid-width">
+                        <i class="fas fa-ruler-horizontal"></i> Lebar Alas
+                    </label>
+                    <input type="number" id="pyramid-width" placeholder="Masukkan lebar alas" step="any" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="pyramid-height">
+                        <i class="fas fa-ruler-vertical"></i> Tinggi Limas Segi Empat
+                    </label>
+                    <input type="number" id="pyramid-height" placeholder="Masukkan tinggi limas segi empat" step="any" min="0">
+                </div>
+                <button class="calculate-btn" onclick="calculatePyramid()">
+                    <i class="fas fa-calculator"></i> Hitung
+                </button>
+                <div class="results" id="pyramid-results" style="display: none;">
+                    <div class="result-item">
+                        <span class="result-label">
+                            <i class="fas fa-weight-hanging"></i> Volume:
+                        </span>
+                        <span class="result-value" id="pyramid-volume">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">
+                            <i class="fas fa-border-style"></i> Luas Permukaan:
+                        </span>
+                        <span class="result-value" id="pyramid-surface">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variable for unit
+        let currentUnit = 'cm';
+        let currentShape = 'cube';
+        
+        // Shape selector functionality
+        document.querySelectorAll('.shape-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const shape = this.dataset.shape;
+                
+                // Update active button
+                document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Hide all cards and show selected one
+                document.querySelectorAll('.shape-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+                document.getElementById(`${shape}-card`).classList.add('active');
+                
+                currentShape = shape;
+                
+                // Add animation to the shape image
+                const shapeImage = document.querySelector(`#${shape}-card .shape-image`);
+                shapeImage.style.animation = 'none';
+                void shapeImage.offsetWidth; // Trigger reflow
+                shapeImage.style.animation = 'pulse 0.5s ease, float 6s ease-in-out infinite';
+            });
+        });
+        
+        // Unit selector functionality
+        document.querySelectorAll('.unit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentUnit = this.dataset.unit;
+                
+                // Update all displayed results
+                updateAllResults();
+            });
+        });
+        
+        // Cube calculations
+        function calculateCube() {
+            const side = parseFloat(document.getElementById('cube-side').value);
+            if (isNaN(side) || side <= 0) {
+                alert('Masukkan panjang sisi yang valid (bilangan positif)');
+                return;
+            }
+            
+            const volume = Math.pow(side, 3);
+            const surfaceArea = 6 * Math.pow(side, 2);
+            
+            document.getElementById('cube-volume').textContent = volume.toFixed(2) + ' ' + currentUnit + '³';
+            document.getElementById('cube-surface').textContent = surfaceArea.toFixed(2) + ' ' + currentUnit + '²';
+            document.getElementById('cube-results').style.display = 'block';
+            
+            // Add animation
+            animateResults('cube-results');
+            animateShapeImage('cube');
+        }
+        
+        // Cuboid calculations
+        function calculateCuboid() {
+            const length = parseFloat(document.getElementById('cuboid-length').value);
+            const width = parseFloat(document.getElementById('cuboid-width').value);
+            const height = parseFloat(document.getElementById('cuboid-height').value);
+            
+            if (isNaN(length) || isNaN(width) || isNaN(height) || 
+                length <= 0 || width <= 0 || height <= 0) {
+                alert('Masukkan panjang, lebar, dan tinggi yang valid (bilangan positif)');
+                return;
+            }
+            
+            const volume = length * width * height;
+            const surfaceArea = 2 * (length*width + length*height + width*height);
+            
+            document.getElementById('cuboid-volume').textContent = volume.toFixed(2) + ' ' + currentUnit + '³';
+            document.getElementById('cuboid-surface').textContent = surfaceArea.toFixed(2) + ' ' + currentUnit + '²';
+            document.getElementById('cuboid-results').style.display = 'block';
+            
+            animateResults('cuboid-results');
+            animateShapeImage('cuboid');
+        }
+        
+        // Pyramid calculations
+        function calculatePyramid() {
+            const baseLength = parseFloat(document.getElementById('pyramid-base').value);
+            const baseWidth = parseFloat(document.getElementById('pyramid-width').value);
+            const height = parseFloat(document.getElementById('pyramid-height').value);
+            
+            if (isNaN(baseLength) || isNaN(baseWidth) || isNaN(height) || 
+                baseLength <= 0 || baseWidth <= 0 || height <= 0) {
+                alert('Masukkan panjang alas, lebar alas, dan tinggi yang valid (bilangan positif)');
+                return;
+            }
+            
+            const volume = (baseLength * baseWidth * height) / 3;
+            
+            // Calculate surface area (base + 4 triangular faces)
+            const slantHeight1 = Math.sqrt(Math.pow(height, 2) + Math.pow(baseWidth/2, 2));
+            const slantHeight2 = Math.sqrt(Math.pow(height, 2) + Math.pow(baseLength/2, 2));
+            
+            const triangularArea1 = (baseLength * slantHeight1) / 2;
+            const triangularArea2 = (baseWidth * slantHeight2) / 2;
+            
+            const surfaceArea = (baseLength * baseWidth) + (2 * triangularArea1) + (2 * triangularArea2);
+            
+            document.getElementById('pyramid-volume').textContent = volume.toFixed(2) + ' ' + currentUnit + '³';
+            document.getElementById('pyramid-surface').textContent = surfaceArea.toFixed(2) + ' ' + currentUnit + '²';
+            document.getElementById('pyramid-results').style.display = 'block';
+            
+            animateResults('pyramid-results');
+            animateShapeImage('pyramid');
+        }
+        
+        // Update all results when unit changes
+        function updateAllResults() {
+            if (document.getElementById('cube-results').style.display === 'block') {
+                calculateCube();
+            }
+            if (document.getElementById('cuboid-results').style.display === 'block') {
+                calculateCuboid();
+            }
+            if (document.getElementById('pyramid-results').style.display === 'block') {
+                calculatePyramid();
+            }
+        }
+        
+        // Animation for results
+        function animateResults(id) {
+            const element = document.getElementById(id);
+            element.style.animation = 'none';
+            void element.offsetWidth; // Trigger reflow
+            element.style.animation = 'pulse 0.5s ease';
+        }
+        
+        // Animation for shape image
+        function animateShapeImage(shape) {
+            const image = document.querySelector(`#${shape}-card .shape-image`);
+            image.style.animation = 'none';
+            void image.offsetWidth; // Trigger reflow
+            image.style.animation = 'float 6s ease-in-out infinite';
+            
+            // Add bounce effect
+            image.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                image.style.transform = 'scale(1)';
+            }, 300);
+        }
+        
+        // Add animation to elements on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate header
+            document.querySelector('header').style.animation = 'fadeIn 1s ease-in-out';
+            
+            // Animate buttons with delay
+            const buttons = document.querySelectorAll('.shape-btn, .unit-btn');
+            buttons.forEach((btn, index) => {
+                btn.style.animation = `slideUp 0.5s ease-out ${index * 0.1}s forwards`;
+                btn.style.opacity = '0';
+            });
+            
+            // Animate calculator container
+            document.querySelector('.calculator-container').style.animation = 'slideUp 0.7s ease-out 0.3s forwards';
+            document.querySelector('.calculator-container').style.opacity = '0';
+            
+            // Animate the initial shape image
+            animateShapeImage('cube');
+        });
+    </script>
+</body>
+</html>
